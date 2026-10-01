@@ -16,7 +16,6 @@
  *     "duration": "23ms",
  *     "entries": {
  *       "postgres": { "status": "Healthy", "duration": "12ms" },
- *       "redis":    { "status": "Healthy", "duration": "3ms"  },
  *       "disk":     { "status": "Healthy", "data": { "free_gb": 18.5 } }
  *     }
  *   }
@@ -80,32 +79,7 @@ try {
     ];
 }
 
-// ── Check 2: Redis ────────────────────────────────────────────────────────────
-// Equivalente ao .AddRedis() do .NET
-$t = microtime(true);
-try {
-    $redis = new Redis();
-    $redis->connect(
-        getenv('REDIS_HOST') ?: 'redis',
-        (int)(getenv('REDIS_PORT') ?: 6379),
-        1.0 // timeout 1s
-    );
-    $pong = $redis->ping();
-
-    $checks['redis'] = [
-        'status'      => 'Healthy',
-        'duration'    => round((microtime(true) - $t) * 1000) . 'ms',
-        'description' => "Redis PING → {$pong}",
-    ];
-} catch (\Throwable $e) {
-    $checks['redis'] = [
-        'status'      => 'Unhealthy',
-        'duration'    => round((microtime(true) - $t) * 1000) . 'ms',
-        'description' => $e->getMessage(),
-    ];
-}
-
-// ── Check 3: Espaço em disco ──────────────────────────────────────────────────
+// ── Check 2: Espaço em disco ──────────────────────────────────────────────────
 // Equivalente a um DiskStorageHealthCheck customizado no .NET
 $t = microtime(true);
 try {

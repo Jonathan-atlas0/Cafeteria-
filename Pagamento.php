@@ -1,17 +1,13 @@
 <?php
 /**
  * Pagamento.php
- * Exibe o resumo do carrinho, coleta o método de pagamento
- * e despacha RegistrarPagamentoCommand + FinalizarPedidoCommand em sequência.
+ * Exibe o resumo do carrinho, coleta o método de pagamento,
+ * registra o pagamento e finaliza o pedido.
  */
 
 session_start();
 include_once("Conexao.php");
 require_once("bootstrap.php");
-
-use Cafeteria\CQRS\Queries\BuscarCarrinhoQuery;
-use Cafeteria\CQRS\Commands\RegistrarPagamentoCommand;
-use Cafeteria\CQRS\Commands\FinalizarPedidoCommand;
 
 $nome = $_SESSION['nome'] ?? null;
 if (!$nome) {
@@ -30,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $itens = $queryBus->dispatch(new BuscarCarrinhoQuery(nomeUsuario: $nome));
+    $itens = buscarCarrinho($conn, $nome);
     if (empty($itens)) {
         $_SESSION['mensagem'] = "Carrinho vazio.";
         header("Location: carrinho.php");
@@ -41,14 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // 1. Registra o pagamento (status 'pendente')
-        $commandBus->dispatch(new RegistrarPagamentoCommand(
-            nomeUsuario:     $nome,
-            metodoPagamento: $metodo,
-            valor:           (float) $total,
-        ));
+        registrarPagamento($conn, $nome, $metodo, (float) $total);
 
-        // 2. Finaliza o pedido (move carrinho → Finalizado, pub no Redis)
-        $commandBus->dispatch(new FinalizarPedidoCommand(nomeUsuario: $nome));
+        // 2. Finaliza o pedido (move carrinho → Finalizado)
+        finalizarPedido($conn, $nome);
 
         $_SESSION['mensagem'] = "Pagamento registrado e pedido finalizado! ☕";
         header("Location: carrinho.php");
@@ -61,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ── GET: exibir tela de pagamento ────────────────────────────────────────────
-$itens = $queryBus->dispatch(new BuscarCarrinhoQuery(nomeUsuario: $nome));
+$itens = buscarCarrinho($conn, $nome);
 if (empty($itens)) {
     header("Location: carrinho.php");
     exit;

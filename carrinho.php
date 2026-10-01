@@ -1,14 +1,7 @@
 <?php
-/**
- * carrinho.php — refatorado com CQRS
- * A view agora recebe $itens pronto do QueryBus, sem SQL inline.
- */
-
 session_start();
 include_once("Conexao.php");
 require_once("bootstrap.php");
-
-use Cafeteria\CQRS\Queries\BuscarCarrinhoQuery;
 
 $nome = $_SESSION['nome'] ?? null;
 if (!$nome) {
@@ -16,8 +9,7 @@ if (!$nome) {
     exit;
 }
 
-// ── QUERY: leitura pura, sem efeito colateral ──────────────────────────────
-$itens = $queryBus->dispatch(new BuscarCarrinhoQuery(nomeUsuario: $nome));
+$itens = buscarCarrinho($conn, $nome);
 $total = count($itens);
 ?>
 <!DOCTYPE html>

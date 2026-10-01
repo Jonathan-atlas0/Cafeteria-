@@ -1,20 +1,12 @@
 {
     "name": "cafeteria/app",
-    "description": "Cafeteria com CQRS, Redis, WebSocket, Observabilidade e Resiliência",
+    "description": "Cafeteria (PHP + PostgreSQL)",
     "require": {
         "php": ">=8.2",
-        "monolog/monolog": "^3.5",
-        "promphp/prometheus_client_php": "^2.10",
-        "guzzlehttp/guzzle": "^7.8",
-        "cboden/ratchet": "^0.4",
-        "react/event-loop": "^1.4"
+        "monolog/monolog": "^3.5"
     },
     "autoload": {
-        "psr-4": {
-            "Cafeteria\\": "cqrs/"
-        },
         "classmap": [
-            "cache/",
             "observability/"
         ]
     },

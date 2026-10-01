@@ -2,7 +2,7 @@
 
 Visão geral
 - Projeto PHP/Apache com APIs para gestão de estoque, pagamentos e frontend estático.
-- Usa PostgreSQL, Redis e serviços de observabilidade (Prometheus/Grafana) via Docker Compose.
+- Usa PostgreSQL e logs estruturados (Monolog) via Docker Compose.
 
 Requisitos
 - Docker e Docker Compose (ou Docker Desktop) instalados.
@@ -60,20 +60,9 @@ php -S localhost:8000 -t .
 # então acessar http://localhost:8000/api/estoque.php?seed=1
 ```
 
-Testes
-- Há testes JS em `cafeteria_test/` e `tests/`.
-- Para os testes JS:
-```bash
-cd cafeteria_test
-npm install
-npm test
-```
-- Os testes PHP/integração podem exigir composer/phpunit; usar Docker é o caminho mais simples.
-
-Manutenção e observabilidade
-- Prometheus: http://localhost:9090
-- Grafana: http://localhost:3000
-- Logs/metrics estão em `observability/`.
+Logs
+- Logs em JSON gravados em `logs/` (Monolog, ver `observability/LoggerService.php`).
+- Health check: `GET /health.php` (readiness) e `GET /health.php?live=1` (liveness).
 
 Alterações que fiz na workspace
 - Adicionei `?seed=1` em `api/estoque.php` para popular o estoque com itens de menu (Capucino, Mocha, Macchiato, Expresso, Leite e Caramelo, Cafe, etc.).
